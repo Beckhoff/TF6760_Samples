@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="MAIN" Id="{6d4237ee-1c29-4d23-9e91-4101e71768e5}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	// trigger command execution for Telegram samples
+	bGetTelegram					: BOOL;
+
+	fbHttpClientTelegram			: FB_IotHttpClient :=(sHostName:='api.telegram.org',
+									bKeepAlive:=FALSE, tConnectionTimeout:=T#10S);
+
+	fbHttpGetTelegram				: FB_TestHTTP_Get_Telegram;
+	sMessage						: STRING(500):='PS Workshop 2021 No. 2';
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//init client parameters at startup
+IF NOT fbHttpClientTelegram.bConfigured THEN
+	fbHttpClientTelegram.nHostPort:=443;
+	fbHttpClientTelegram.stTLS.bNoServerCertCheck:=TRUE;
+END_IF
+
+IF fbHttpClientTelegram.bConfigured THEN
+	fbHttpGetTelegram(bSend:=bGetTelegram, fbClient:=fbHttpClientTelegram, sMessage:=sMessage);
+END_IF
+
+fbHttpClientTelegram.Execute();]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="37" Count="1" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="42" Count="2" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="46" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

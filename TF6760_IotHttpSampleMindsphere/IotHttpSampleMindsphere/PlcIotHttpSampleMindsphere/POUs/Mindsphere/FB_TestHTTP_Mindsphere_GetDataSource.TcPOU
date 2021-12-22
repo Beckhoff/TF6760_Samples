@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.3">
+  <POU Name="FB_TestHTTP_Mindsphere_GetDataSource" Id="{907ba34c-3393-4aca-a401-28ab2fc13889}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TestHTTP_Mindsphere_GetDataSource
+VAR_INPUT
+	bSend				: BOOL;
+END_VAR
+VAR_IN_OUT
+	fbClient			: FB_IotHttpClient;
+END_VAR
+VAR_OUTPUT
+	bBusy				: BOOL;
+	bError				: BOOL;
+END_VAR
+VAR	
+	fbRequest			: FB_IotHttpRequest;
+	fbHeader			: FB_IotHttpHeaderFieldMap;
+	fbJson				: FB_JsonDomParser;
+	nState				: UDINT;
+	RisingEdge			: R_TRIG;
+	
+	bGetContentResult	: BOOL;
+	sContent			: STRING(2048);
+	
+	bGetJsonResult		: BOOL;
+	jsonDoc				: SJsonValue;
+	jsonVal				: SJsonValue;
+	sResultValue		: STRING;
+	
+	nReqCount			: UDINT;
+	nResCount			: UDINT;
+	nValidResCount		: UDINT;
+	nErrCount			: UDINT;	
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RisingEdge(CLK:= bSend);
+CASE nState OF
+0:		
+	IF RisingEdge.Q THEN
+		sContent := '';
+		fbHeader.AddField('Content-Type', 'application/x-www-form-urlencoded', FALSE);
+		// Header field 'Authorization' now includes RAT 
+		fbHeader.AddField('Authorization', 'Bearer eyJraWQiOiJrZXktaWQtMSIsImFsZyI6IlJTMjU2IiwidHlwIjoiSldUIn0.eyJqdGkiOiJlY2I4Y2RkZS1jOTFhLTRkNGMtODA2Mi1lYTBmN2Y5ZGZkMjkiLCJzY29wZSI6WyJtZHNwOmNvcmU6RGVmYXVsdEFnZW50Il0sImlzcyI6Imh0dHBzOi8vc291dGhnYXRlLmV1MS5taW5kc3BoZXJlLmlvL2FwaS9hZ2VudG1hbmFnZW1lbnQvIiwic3ViIjoiOTU2Y2NlMzYwNWIxNDIwODkwMDk1ZTUwZTJiMTFlMTciLCJ6aWQiOiJhZ2VudGlhbSIsImF1ZCI6WyJzb3V0aGdhdGUiXSwiaWF0IjoxNTgyMTg4OTIwLCJleHAiOjE1ODIxOTI1MjAsInNjaGVtYXMiOlsidXJuOnNpZW1lbnM6bWluZHNwaGVyZTppYW06djEiXSwidGVuIjoiYmVja2hvZmYiLCJ0ZW5fY3R4IjoibWFpbi10ZW5hbnQiLCJjYXQiOiJhZ2VudC10b2tlbjp2MSIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMifQ.XLMR7pQDBiRZeDwtBLfKujJrPIWwvFw28DjtedfYL_x4iOUIcV7U6AJyKe6Wnit4GOAKfJYh_BGD160E3ns7RjRBYSx8Lj5dxI20l3g_KMcpgILoaW8gYlx41Y4q6W44zctJ04TQLsaz-Vc3eOEJ_TdMTGc_7s4v4YsQbZinKN-ZmQF_sXdGbihL2CkbqhnaubwZGn_FmSZosuiDXk4GFdF1TX2xXHQCz39p8jPYtgq2x9LkuIFtEzUct_lTy30rcwS2Fq6m-ac6gldJFtvqLZoXu3wUlHR1F7kAYndm6wvtXXlgDo5otTMZfzXBTEQA3JS2Cucys3gJNhYEDpUAtg', FALSE);
+		IF fbRequest.SendRequest(sUri:= '/api/agentmanagement/v3/agents/956cce3605b1420890095e50e2b11e17/dataSourceConfiguration', fbClient:= fbClient, eRequestType:= ETcIotHttpRequestType.HTTP_GET, pContent:= ADR(sContent), nContentSize:= LEN2(ADR(sContent)), fbHeader:= fbHeader) THEN				
+			nState:= 1;
+			nReqCount:= nReqCount+1;
+			bBusy:= TRUE;
+			bError:= FALSE;
+		END_IF					
+	END_IF
+1:
+	IF NOT fbRequest.bBusy THEN
+		bError:= TRUE;
+		IF NOT fbRequest.bError THEN				 				
+			bGetContentResult:= fbRequest.GetContent(pContent:= ADR(sContent), nContentSize:= SIZEOF(sContent), bSetNullTermination:= TRUE);	
+			IF fbRequest.nStatusCode >= 200 AND fbRequest.nStatusCode < 300 THEN
+				bGetJsonResult:= FALSE;
+				jsonDoc:= fbRequest.GetJsonDomContent(fbJson);				
+				(* Parse response in order to acquire DataSource configuration for this asset *)
+				nResCount:= nResCount+1;					
+			END_IF				
+		END_IF
+		nState:= 0;
+		bBusy:= FALSE;
+		IF bError THEN
+			nErrCount:= nErrCount+1;
+		END_IF		
+	END_IF  	
+END_CASE
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_TestHTTP_Mindsphere_GetDataSource">
+      <LineId Id="99" Count="2" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="766" Count="0" />
+      <LineId Id="760" Count="0" />
+      <LineId Id="820" Count="0" />
+      <LineId Id="783" Count="0" />
+      <LineId Id="297" Count="0" />
+      <LineId Id="129" Count="1" />
+      <LineId Id="575" Count="1" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="150" Count="2" />
+      <LineId Id="667" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="163" Count="1" />
+      <LineId Id="623" Count="0" />
+      <LineId Id="615" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="193" Count="0" />
+      <LineId Id="196" Count="1" />
+      <LineId Id="577" Count="0" />
+      <LineId Id="670" Count="1" />
+      <LineId Id="669" Count="0" />
+      <LineId Id="198" Count="1" />
+      <LineId Id="201" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

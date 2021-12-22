@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="FB_TestHTTP_Get_Telegram" Id="{269b85b0-1fd0-454e-9438-ce6be384a491}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TestHTTP_Get_Telegram
+VAR_INPUT
+	bSend				: BOOL;
+	sMessage			: STRING(500);
+END_VAR
+VAR_IN_OUT
+	fbClient			: FB_IotHttpClient;
+END_VAR
+VAR_OUTPUT
+	bBusy				: BOOL;
+	bError				: BOOL;
+END_VAR
+VAR
+	fbRequest			: FB_IotHttpRequest;
+	fbJson				: FB_JsonDomParser;
+	nState				: UDINT;
+	RisingEdge			: R_TRIG;
+	
+	bGetContentResult	: BOOL;
+	sContent			: STRING(511);
+	
+	bGetJsonResult		: BOOL;
+	jsonDoc				: SJsonValue;
+	jsonVal				: SJsonValue;
+	sResultValue		: STRING;
+	
+	nReqCount			: UDINT;	
+	nResCount			: UDINT;
+	nValidResCount		: UDINT;
+	nErrCount			: UDINT;
+	fbFormatString		: FB_FormatString;
+	sBotApiKey			: STRING(500):='1644750049:AAH-censored_9RQkjlZ2IURbZWM';
+	sChatId				: STRING(500):='114042censored';
+	sConMessage			: STRING(500);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RisingEdge(CLK:= bSend );
+
+fbFormatString(
+	sFormat	:= '/bot%s/sendMessage?chat_id=%s&text=%s', 
+	arg1	:= F_STRING(sBotApiKey), 
+	arg2	:= F_STRING(sChatId), 
+	arg3	:= F_STRING(sMessage), 
+	bError	=> , 
+	nErrId	=> , 
+	sOut	=> sConMessage);
+
+CASE nState OF
+0:	
+	IF RisingEdge.Q THEN 
+		IF fbRequest.SendRequest(sUri:=sConMessage, fbClient:=fbClient, eRequestType:=ETcIotHttpRequestType.HTTP_Get, 0, 0, 0) THEN				
+			nState:= 1;
+			nReqCount:= nReqCount+1;
+			bBusy:= TRUE;
+			bError:= FALSE;
+		END_IF					
+	END_IF
+1:
+	IF NOT fbRequest.bBusy THEN
+		bError:= TRUE;
+		IF NOT fbRequest.bError THEN				 
+			bGetContentResult:= fbRequest.GetContent(pContent:= ADR(sContent), nContentSize:= SIZEOF(sContent), bSetNullTermination:= TRUE);
+			IF fbRequest.nStatusCode >= 200 AND fbRequest.nStatusCode < 300 THEN
+				bGetJsonResult:= FALSE;
+				jsonDoc:= fbRequest.GetJsonDomContent(fbJson);
+				IF jsonDoc <> 0 THEN
+					; // do something with the response
+					nValidResCount:= nValidResCount+1;
+					bError:= FALSE;	
+				END_IF							
+				nResCount:= nResCount+1;			
+			END_IF
+		END_IF
+		nState:= 0;
+		bBusy:= FALSE;
+		IF bError THEN
+			nErrCount:= nErrCount+1;
+		END_IF
+	END_IF  	
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="FB_TestHTTP_Get_Telegram">
+      <LineId Id="38" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="88" Count="4" />
+      <LineId Id="100" Count="1" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="39" Count="18" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="70" Count="9" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

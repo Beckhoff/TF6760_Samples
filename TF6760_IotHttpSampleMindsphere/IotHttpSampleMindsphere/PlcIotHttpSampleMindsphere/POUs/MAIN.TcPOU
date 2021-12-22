@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.3">
+  <POU Name="MAIN" Id="{32e12d65-006a-4420-a01f-1b443313431e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	// trigger command execution for Siemens Mindsphere samples
+	bOnboardMindsphere				: BOOL;
+	bKeyRotationMindsphere			: BOOL;
+	bAcquireAATMindsphere			: BOOL;
+	bCreateDataSourceMindsphere		: BOOL;
+	bGetDataSourceMindsphere		: BOOL;
+	bCreateMappingMindsphere		: BOOL;
+	
+	fbHttpClientMindsphere			: FB_IotHttpClient :=(sHostName:='gateway.eu1.mindsphere.io',
+									bKeepAlive:=TRUE, tConnectionTimeout:=T#10S);						
+	
+	fbHttpMindsphereOnboarding		: FB_TestHTTP_Mindsphere_Onboarding;
+	fbHttpMindsphereKeyRotation		: FB_TestHTTP_Mindsphere_KeyRotation;
+	fbHttpMindsphereAcquireAAT		: FB_TestHTTP_Mindsphere_AcquireAAT;
+	fbHttpMindsphereCreateDataSource: FB_TestHTTP_Mindsphere_CreateDataSource;
+	fbHttpMindsphereGetDataSource	: FB_TestHTTP_Mindsphere_GetDataSource;
+	fbHttpMindsphereCreateMapping	: FB_TestHTTP_Mindsphere_CreateMapping;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// init client parameters at startup
+IF NOT fbHttpClientMindsphere.bConfigured THEN 
+	fbHttpClientMindsphere.stTLS.sCA:= 'C:\TwinCAT\3.1\Config\Certificates\Mindsphere\MindsphereRoot_Europe.pem';
+	fbHttpClientMindsphere.nHostPort:= 443;
+	fbHttpClientMindsphere.stTLS.bNoServerCertCheck:= TRUE;
+END_IF
+
+IF fbHttpClientMindsphere.bConfigured THEN
+ 	fbHttpMindsphereOnboarding(bSend:=bOnboardMindsphere, fbClient:=fbHttpClientMindsphere);
+	fbHttpMindsphereKeyRotation(bSend:=bKeyRotationMindsphere, fbClient:=fbHttpClientMindsphere);
+	fbHttpMindsphereAcquireAAT(bSend:=bAcquireAATMindsphere, fbClient:=fbHttpClientMindsphere);
+	fbHttpMindsphereCreateDataSource(bSend:=bCreateDataSourceMindsphere, fbClient:=fbHttpClientMindsphere);
+	fbHttpMindsphereGetDataSource(bSend:=bGetDataSourceMindsphere, fbClient:=fbHttpClientMindsphere);
+	fbHttpMindsphereCreateMapping(bSend:=bCreateMappingMindsphere, fbClient:=fbHttpClientMindsphere);
+END_IF
+
+fbHttpClientMindsphere.Execute();
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="114" Count="5" />
+      <LineId Id="146" Count="9" />
+      <LineId Id="160" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

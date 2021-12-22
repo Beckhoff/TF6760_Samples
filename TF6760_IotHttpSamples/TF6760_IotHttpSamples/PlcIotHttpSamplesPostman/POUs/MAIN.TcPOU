@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="MAIN" Id="{b37e2b32-48ef-44fd-8d39-b46780530972}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	// trigger command execution for Postman-Echo samples
+	bGet, bPost, bPut, bHeaderAuth 	: BOOL;
+
+	fbHttpClientPostman				: FB_IotHttpClient :=(sHostName:='postman-echo.com',
+								  	bKeepAlive:=TRUE, tConnectionTimeout:=T#10S);
+								
+	fbHttpGet						: FB_TestHTTP_Get;
+	fbHttpPost						: FB_TestHTTP_Post;
+	fbHttpPut						: FB_TestHTTP_Put;
+	fbHttpHeaderAuth				: FB_TestHTTP_HeaderAuth;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// init client parameters at startup
+IF NOT fbHttpClientPostman.bConfigured THEN 
+	fbHttpClientPostman.nHostPort:= 80;
+END_IF
+
+IF fbHttpClientPostman.bConfigured THEN 
+	fbHttpGet(bSend:=bGet, fbClient:=fbHttpClientPostman);
+	fbHttpPost(bSend:=bPost, fbClient:=fbHttpClientPostman);
+	fbHttpPut(bSend:=bPut, fbClient:=fbHttpClientPostman);
+	fbHttpHeaderAuth(bSend:=bHeaderAuth, fbClient:=fbHttpClientPostman);
+END_IF 
+
+fbHttpClientPostman.Execute();]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="6" Count="2" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="41" Count="5" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="47" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

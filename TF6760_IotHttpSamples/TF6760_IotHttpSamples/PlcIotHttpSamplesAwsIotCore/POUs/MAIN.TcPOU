@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.4">
+  <POU Name="MAIN" Id="{2db488a2-9fa2-4157-92a7-aa46313919c9}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	// trigger command execution for AWS IoT Core samples
+	bGetAwsIotShadow, bPostAwsIot 	: BOOL;
+
+	fbHttpClientAwsIot				: FB_IotHttpClient :=(sHostName:='youradress.amazonaws.com',
+								  	bKeepAlive:=FALSE, tConnectionTimeout:=T#10S);
+								
+	fbHttpGetAwsIotShadow			: FB_TestHTTP_Get_awsIotShadow;	
+	fbHttpPostAwsIot				: FB_TestHTTP_Post_awsIot;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// init client parameters at startup
+IF NOT fbHttpClientAwsIot.bConfigured THEN 
+	fbHttpClientAwsIot.stTLS.sCA:= 'C:\TwinCAT\3.1\Config\Certificates\AWS\AmazonRootCA1.pem';
+	fbHttpClientAwsIot.stTLS.sCert:= 'C:\TwinCAT\3.1\Config\Certificates\AWS\12345678-certificate.pem.crt';
+	fbHttpClientAwsIot.stTLS.sKeyFile:= 'C:\TwinCAT\3.1\Config\Certificates\AWS\12345678-private.pem.key';
+	fbHttpClientAwsIot.nHostPort:= 8443;
+END_IF
+
+IF fbHttpClientAwsIot.bConfigured THEN
+	fbHttpGetAwsIotShadow(bSend:=bGetAwsIotShadow, fbClient:=fbHttpClientAwsIot);
+	fbHttpPostAwsIot(bSend:=bPostAwsIot, fbClient:=fbHttpClientAwsIot);
+END_IF
+
+fbHttpClientAwsIot.Execute();]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="6" Count="6" />
+      <LineId Id="79" Count="3" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

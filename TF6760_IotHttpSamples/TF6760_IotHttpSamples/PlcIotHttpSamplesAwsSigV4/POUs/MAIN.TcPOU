@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="MAIN" Id="{7aff9907-d971-4bb2-b89e-3008474a0a7c}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	// trigger command execution for AWS Sig V4 samples
+	bGetAWSSigV4					: BOOL;
+
+	fbHttpClientAWSSigV4			: FB_IotHttpClient :=(sHostName:='ec2.us-east-1.amazonaws.com',
+									bKeepAlive:=FALSE, tConnectionTimeout:=T#10S);
+
+	fbHttpGetAWSSigV4				: FB_TestHTTP_Get_AwsSigV4;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//init client parameters at startup
+IF NOT fbHttpClientAWSSigV4.bConfigured THEN
+	fbHttpClientAWSSigV4.nHostPort:=443;
+	fbHttpClientAWSSigV4.stTLS.bNoServerCertCheck:=TRUE;
+END_IF
+
+IF fbHttpClientAWSSigV4.bConfigured THEN
+	fbHttpGetAWSSigV4(bSend:=bGetAWSSigV4, fbClient:=fbHttpClientAWSSigV4);
+END_IF
+
+fbHttpClientAWSSigV4.Execute();]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="17" Count="1" />
+      <LineId Id="20" Count="7" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="MAIN" Id="{df8ef25c-63ca-48ff-b97a-e5f69f6c7e3e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	// trigger command execution for OpenWeatherMap samples 	
+	bGetOpenWeatherMap 				: BOOL; 
+
+	fbHttpClientOpenWeatherMap		: FB_IotHttpClient :=(sHostName:='api.openweathermap.org',
+								  	bKeepAlive:=TRUE,	tConnectionTimeout:=T#10S);
+
+	fbHttpGetOpenWeatherMap			: FB_TestHTTP_Get_openWeatherMap;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// init client parameters at startup
+IF NOT fbHttpClientOpenWeatherMap.bConfigured THEN 
+	fbHttpClientOpenWeatherMap.nHostPort:= 443;
+	fbHttpClientOpenWeatherMap.stTLS.bNoServerCertCheck:= TRUE;
+END_IF
+
+IF fbHttpClientOpenWeatherMap.bConfigured THEN
+ 	fbHttpGetOpenWeatherMap(bSend:=bGetOpenWeatherMap, fbClient:=fbHttpClientOpenWeatherMap);
+END_IF
+
+fbHttpClientOpenWeatherMap.Execute();]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="6" Count="1" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="43" Count="2" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="46" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

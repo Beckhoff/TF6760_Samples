@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="FB_TestHTTP_Get_AwsSigV4" Id="{0018f3cb-42cb-4557-97b1-efc517059e63}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TestHTTP_Get_AwsSigV4
+VAR_INPUT
+	bSend				: BOOL;
+END_VAR
+VAR_IN_OUT
+	fbClient			: FB_IotHttpClient;
+END_VAR
+VAR_OUTPUT
+	bBusy				: BOOL;
+	bError				: BOOL;
+END_VAR
+VAR
+	fbRequest			: FB_IotHttpRequest;
+	fbSig4Header		: FB_IotHttpAwsSig4HeaderFieldMap;
+	nState				: UDINT;
+	RisingEdge			: R_TRIG;
+	
+	bGetContentResult	: BOOL;
+	sContent			: STRING(5000);
+	
+	bGetJsonResult		: BOOL;
+	sResultValue		: STRING;
+	
+	nReqCount			: UDINT;	
+	nResCount			: UDINT;
+	nValidResCount		: UDINT;
+	nErrCount			: UDINT;
+	sRequestUrl			: STRING(500):='?Action=RunInstances&ImageId=ami-0229f7666f517b31e&InstanceType=t2.small&KeyName=Test&MaxCount=1&MinCount=1&Version=2016-11-15';
+	//sRequestUrl			: STRING(500):='?Action=DescribeInstances&Version=2016-11-15';
+	sService			: STRING:='ec2';
+	sRegion				: STRING:='us-east-1';
+	sAccessKey			: STRING:='censored';
+	sSecretKey			: STRING:='censored';
+	sSignedHeaders		: STRING:='host;x-amz-date';
+	bSetParameter		: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RisingEdge(CLK:= bSend );
+
+CASE nState OF
+0:	
+	IF RisingEdge.Q THEN 
+		bSetParameter:=fbSig4Header.SetParameter(sService, sRegion, sAccessKey, sSecretKey, sSignedHeaders);	
+		IF bSetParameter THEN
+			IF fbRequest.SendRequest(sUri:=sRequestUrl, fbClient:=fbClient, eRequestType:=ETcIotHttpRequestType.HTTP_Get, 0, 0, fbHeader:=fbSig4Header) THEN				
+				nState:= 1;
+				nReqCount:= nReqCount+1;
+				bBusy:= TRUE;
+				bError:= FALSE;
+			END_IF
+			bSetParameter:=FALSE;	
+		END_IF
+				
+	END_IF
+1:
+	IF NOT fbRequest.bBusy THEN
+		bError:= TRUE;
+		IF NOT fbRequest.bError THEN				 
+			bGetContentResult:= fbRequest.GetContent(pContent:= ADR(sContent), nContentSize:= SIZEOF(sContent), bSetNullTermination:= TRUE);
+			IF fbRequest.nStatusCode >= 200 AND fbRequest.nStatusCode < 300 THEN				
+				nResCount:= nResCount+1;
+				// do something with XML response
+				bError:=FALSE;			
+			END_IF
+		END_IF
+		nState:= 0;
+		bBusy:= FALSE;
+		IF bError THEN
+			nErrCount:= nErrCount+1;
+		END_IF
+	END_IF  	
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="FB_TestHTTP_Get_AwsSigV4">
+      <LineId Id="50" Count="0" />
+      <LineId Id="60" Count="3" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="107" Count="4" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="112" Count="0" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="69" Count="7" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="85" Count="7" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

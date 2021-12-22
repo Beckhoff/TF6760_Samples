@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="FB_TestHTTP_HeaderAuth" Id="{78f398a4-338a-4efe-bf5c-a180ce91ef4c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TestHTTP_HeaderAuth
+VAR_INPUT
+	bSend		: BOOL;
+END_VAR
+VAR_IN_OUT
+	fbClient			: FB_IotHttpClient;
+END_VAR
+VAR_OUTPUT
+	bBusy				: BOOL;
+	bError				: BOOL;
+END_VAR
+VAR
+	fbRequest			: FB_IotHttpRequest;
+	fbHeader			: FB_IotHttpHeaderFieldMap;
+	fbJson				: FB_JsonDomParser;
+	nState				: UDINT;
+	RisingEdge			: R_TRIG;
+
+	bGetContentResult	: BOOL;
+	sContent			: STRING(511);
+	
+	bGetJsonResult		: BOOL;
+	jsonDoc				: SJsonValue;
+	jsonVal				: SJsonValue;
+	bResultValue		: BOOL;
+	
+	nReqCount			: UDINT;	
+	nResCount			: UDINT;
+	nValidResCount		: UDINT;
+	nErrCount			: UDINT;
+	bOnce				: BOOL:= TRUE;
+	bTwice				: BOOL;
+	sTest				: STRING;
+	bTest				: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bOnce THEN
+	fbHeader.AddField('Authorization', 'Basic cG9zdG1hbjpwYXNzd29yZA==', FALSE);	
+	bOnce:= FALSE;
+END_IF
+
+RisingEdge(CLK:= bSend);
+CASE nState OF
+0:	
+	IF RisingEdge.Q THEN 
+		IF fbRequest.SendRequest(sUri:='/basic-auth', fbClient:=fbClient, eRequestType:=ETcIotHttpRequestType.HTTP_GET, 0, 0, fbHeader) THEN				
+			nState:= 1;
+			nReqCount:= nReqCount+1;
+			bBusy:= TRUE;
+			bError:= FALSE;
+		END_IF					
+	END_IF
+1:
+	IF NOT fbRequest.bBusy THEN
+		bError:= TRUE;
+		IF NOT fbRequest.bError THEN				 
+			bGetContentResult:= fbRequest.GetContent(pContent:= ADR(sContent), nContentSize:= SIZEOF(sContent), bSetNullTermination:= TRUE);
+			IF fbRequest.nStatusCode >= 200 AND fbRequest.nStatusCode < 300 THEN
+				bGetJsonResult:= FALSE;
+				jsonDoc:= fbRequest.GetJsonDomContent(fbJson);
+				IF jsonDoc <> 0 THEN
+					bGetJsonResult:= TRUE;
+					IF fbJson.HasMember(jsonDoc, 'authenticated') THEN
+						jsonVal:= fbJson.FindMember(jsonDoc, 'authenticated');						
+						IF fbJson.IsBool(jsonVal) THEN
+							bResultValue:= fbJson.GetBool(jsonVal);
+							nValidResCount:= nValidResCount+1;
+							bError:= FALSE;						
+						END_IF	
+					END_IF
+				END_IF							
+				nResCount:= nResCount+1;			
+			END_IF
+		END_IF
+		nState:= 0;
+		bBusy:= FALSE;
+		IF bError THEN
+			nErrCount:= nErrCount+1;
+		END_IF
+	END_IF  	
+END_CASE
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_TestHTTP_HeaderAuth">
+      <LineId Id="157" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="10" Count="20" />
+      <LineId Id="87" Count="2" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="41" Count="11" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

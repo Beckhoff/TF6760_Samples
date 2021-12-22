@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.3">
+  <POU Name="FB_TestHTTP_Put_PhilipsHue" Id="{94c3d0ef-8d35-4d93-9dca-5861fb82b516}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TestHTTP_Put_PhilipsHue
+VAR_INPUT
+	bSend				: BOOL;
+	nColor				: UINT;
+END_VAR
+VAR_IN_OUT
+	fbClient			: FB_IotHttpClient;
+END_VAR
+VAR_OUTPUT
+	bBusy				: BOOL;
+	bError				: BOOL;
+END_VAR
+VAR
+	fbRequest			: FB_IotHttpRequest;
+	fbJson				: FB_JsonDomParser;
+	fbJsonWriter		: FB_JsonSaxWriter;
+	nState				: UDINT;
+	RisingEdge			: R_TRIG;
+	
+	bGetContentResult	: BOOL;
+	sContent			: STRING(511);
+	sSend				: STRING(511);
+	
+	bGetJsonResult		: BOOL;
+	jsonDoc				: SJsonValue;
+	jsonVal				: SJsonValue;
+	sResultValue		: STRING;
+	
+	nReqCount			: UDINT;	
+	nResCount			: UDINT;
+	nValidResCount		: UDINT;
+	nErrCount			: UDINT;
+	
+	fbTimer				: TON;
+	bLightOn			: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RisingEdge(CLK:= bSend );
+
+CASE nState OF
+0:	
+		fbJsonWriter.StartObject();
+		fbJsonWriter.AddKey('on');
+		fbJsonWriter.AddBool(TRUE);
+		fbJsonWriter.AddKey('sat');
+		fbJsonWriter.AddUdint(50);
+		fbJsonWriter.AddKey('bri');
+		fbJsonWriter.AddUdint(100);
+		fbJsonWriter.AddKey('hue');
+		fbJsonWriter.AddUdint(nColor);
+		fbJsonWriter.EndObject();
+		sSend:=fbJsonWriter.GetDocument();
+		fbJsonWriter.ResetDocument();
+	IF RisingEdge.Q THEN 
+		IF fbRequest.SendRequest(sUri:='/api/qiyut7ubQQQv2xKJfFe9cVvIroUGHtIk2eYsIfGX/lights/1/state', fbClient:=fbClient, eRequestType:=ETcIotHttpRequestType.HTTP_PUT, pContent:=ADR(sSend), nContentSize:=LEN2(ADR(sSend)), 0) THEN				
+			nState:= 1;
+			nReqCount:= nReqCount+1;
+			bBusy:= TRUE;
+			bError:= FALSE;
+		END_IF					
+	END_IF
+1:
+	IF NOT fbRequest.bBusy THEN
+		bError:= TRUE;
+		IF NOT fbRequest.bError THEN				 
+			bGetContentResult:= fbRequest.GetContent(pContent:= ADR(sContent), nContentSize:= SIZEOF(sContent), bSetNullTermination:= TRUE);
+			IF fbRequest.nStatusCode >= 200 AND fbRequest.nStatusCode < 300 THEN
+				bGetJsonResult:= FALSE;
+				jsonDoc:= fbRequest.GetJsonDomContent(fbJson);
+				IF jsonDoc <> 0 THEN
+					; // do something with status response
+					nValidResCount:= nValidResCount+1;
+					bError:= FALSE;	
+				END_IF							
+				nResCount:= nResCount+1;			
+			END_IF
+		END_IF
+		nState:= 0;
+		bBusy:= FALSE;
+		IF bError THEN
+			nErrCount:= nErrCount+1;
+		END_IF
+	END_IF  	
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="FB_TestHTTP_Put_PhilipsHue">
+      <LineId Id="57" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="58" Count="1" />
+      <LineId Id="178" Count="10" />
+      <LineId Id="177" Count="0" />
+      <LineId Id="60" Count="16" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="89" Count="9" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
