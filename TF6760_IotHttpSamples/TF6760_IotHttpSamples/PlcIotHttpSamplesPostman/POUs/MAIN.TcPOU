@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="MAIN" Id="{b37e2b32-48ef-44fd-8d39-b46780530972}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
@@ -19,7 +19,8 @@ END_VAR
     <Implementation>
       <ST><![CDATA[// init client parameters at startup
 IF NOT fbHttpClientPostman.bConfigured THEN 
-	fbHttpClientPostman.nHostPort:= 80;
+	fbHttpClientPostman.nHostPort:= 443;
+	fbHttpClientPostman.stTLS.bNoServerCertCheck:=TRUE;
 END_IF
 
 IF fbHttpClientPostman.bConfigured THEN 
@@ -33,6 +34,7 @@ fbHttpClientPostman.Execute();]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
       <LineId Id="6" Count="2" />
+      <LineId Id="63" Count="0" />
       <LineId Id="2" Count="0" />
       <LineId Id="41" Count="5" />
       <LineId Id="40" Count="0" />

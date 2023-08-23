@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.12">
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.50">
 	<Project ProjectGUID="{5093E5C7-A2B3-4BE0-9125-8D5BA2C6A3EB}" Target64Bit="true" ShowHideConfigurations="#x106">
 		<System>
 			<Tasks>
@@ -28,12 +28,12 @@
 		</System>
 		<Plc>
 			<Project GUID="{F3908C9E-0116-42FC-9A3B-EF77E5279460}" Name="PlcIotHttpSamplesPostman" PrjFilePath="PlcIotHttpSamplesPostman\PlcIotHttpSamplesPostman.plcproj" TmcFilePath="PlcIotHttpSamplesPostman\PlcIotHttpSamplesPostman.tmc" ReloadTmc="true" AmsPort="852" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesPostman\PlcIotHttpSamplesPostman.tmc">
+				<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesPostman\PlcIotHttpSamplesPostman.tmc" TmcHash="{686D8E7C-3D45-EF58-6D81-64BED937CCC6}">
 					<Name>PlcIotHttpSamplesPostman Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
 						<Context>
-							<Id NeedCalleeCall="true">0</Id>
+							<Id>0</Id>
 							<Name>PlcTask</Name>
 							<ManualConfig>
 								<OTCID>#x02010040</OTCID>
@@ -48,12 +48,12 @@
 				</Instance>
 			</Project>
 			<Project GUID="{051FFAC7-31F8-4FF8-8FC4-70C933A96262}" Name="PlcIotHttpSamplesAwsIotCore" PrjFilePath="PlcIotHttpSamplesAwsIotCore\PlcIotHttpSamplesAwsIotCore.plcproj" TmcFilePath="PlcIotHttpSamplesAwsIotCore\PlcIotHttpSamplesAwsIotCore.tmc" ReloadTmc="true" AmsPort="853" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502080" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesAwsIotCore\PlcIotHttpSamplesAwsIotCore.tmc">
+				<Instance Id="#x08502080" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesAwsIotCore\PlcIotHttpSamplesAwsIotCore.tmc" TmcHash="{76CE4978-9BC3-7051-F183-ACDB07AE2FC4}">
 					<Name>PlcIotHttpSamplesAwsIotCore Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
 						<Context>
-							<Id NeedCalleeCall="true">0</Id>
+							<Id>0</Id>
 							<Name>PlcTask</Name>
 							<ManualConfig>
 								<OTCID>#x02010050</OTCID>
@@ -68,12 +68,12 @@
 				</Instance>
 			</Project>
 			<Project GUID="{6FD64F78-BA89-4C8D-B79C-79C80BA856DB}" Name="PlcIotHttpSamplesOpenWeatherMap" PrjFilePath="PlcIotHttpSamplesOpenWeatherMap\PlcIotHttpSamplesOpenWeatherMap.plcproj" TmcFilePath="PlcIotHttpSamplesOpenWeatherMap\PlcIotHttpSamplesOpenWeatherMap.tmc" ReloadTmc="true" AmsPort="854" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x085020c0" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesOpenWeatherMap\PlcIotHttpSamplesOpenWeatherMap.tmc">
+				<Instance Id="#x085020c0" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesOpenWeatherMap\PlcIotHttpSamplesOpenWeatherMap.tmc" TmcHash="{25E1C537-55D4-8B4F-EC75-21D4FCF6E166}">
 					<Name>PlcIotHttpSamplesOpenWeatherMap Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
 						<Context>
-							<Id NeedCalleeCall="true">0</Id>
+							<Id>0</Id>
 							<Name>PlcTask</Name>
 							<ManualConfig>
 								<OTCID>#x02010060</OTCID>
@@ -88,12 +88,12 @@
 				</Instance>
 			</Project>
 			<Project GUID="{0AA50616-F2D6-468D-B3ED-7FDDCE85916F}" Name="PlcIotHttpSamplesPhilipsHue" PrjFilePath="PlcIotHttpSamplesPhilipsHue\PlcIotHttpSamplesPhilipsHue.plcproj" TmcFilePath="PlcIotHttpSamplesPhilipsHue\PlcIotHttpSamplesPhilipsHue.tmc" ReloadTmc="true" AmsPort="855" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502100" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesPhilipsHue\PlcIotHttpSamplesPhilipsHue.tmc">
+				<Instance Id="#x08502100" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesPhilipsHue\PlcIotHttpSamplesPhilipsHue.tmc" TmcHash="{AD570D86-48C3-E159-B340-A29EB9B50721}">
 					<Name>PlcIotHttpSamplesPhilipsHue Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
 						<Context>
-							<Id NeedCalleeCall="true">0</Id>
+							<Id>0</Id>
 							<Name>PlcTask</Name>
 							<ManualConfig>
 								<OTCID>#x02010070</OTCID>
@@ -108,12 +108,12 @@
 				</Instance>
 			</Project>
 			<Project GUID="{821F4F6A-AD83-4D55-BD5A-93D29F3B6445}" Name="PlcIotHttpSamplesTelegram" PrjFilePath="PlcIotHttpSamplesTelegram\PlcIotHttpSamplesTelegram.plcproj" TmcFilePath="PlcIotHttpSamplesTelegram\PlcIotHttpSamplesTelegram.tmc" ReloadTmc="true" AmsPort="856" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502140" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesTelegram\PlcIotHttpSamplesTelegram.tmc">
+				<Instance Id="#x08502140" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesTelegram\PlcIotHttpSamplesTelegram.tmc" TmcHash="{E0C2AE5D-C6F8-E58A-749C-BFAB70CBA051}">
 					<Name>PlcIotHttpSamplesTelegram Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
 						<Context>
-							<Id NeedCalleeCall="true">0</Id>
+							<Id>0</Id>
 							<Name>PlcTask</Name>
 							<ManualConfig>
 								<OTCID>#x02010080</OTCID>
@@ -128,12 +128,12 @@
 				</Instance>
 			</Project>
 			<Project GUID="{B9C0C26D-1C6D-427B-AA54-09D9E2F1E717}" Name="PlcIotHttpSamplesAwsSigV4" PrjFilePath="PlcIotHttpSamplesAwsSigV4\PlcIotHttpSamplesAwsSigV4.plcproj" TmcFilePath="PlcIotHttpSamplesAwsSigV4\PlcIotHttpSamplesAwsSigV4.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesAwsSigV4\PlcIotHttpSamplesAwsSigV4.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PlcIotHttpSamplesAwsSigV4\PlcIotHttpSamplesAwsSigV4.tmc" TmcHash="{9BA8F6FB-262A-1279-4CE0-668E5BF0E681}">
 					<Name>PlcIotHttpSamplesAwsSigV4 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
 						<Context>
-							<Id NeedCalleeCall="true">0</Id>
+							<Id>0</Id>
 							<Name>PlcTask</Name>
 							<ManualConfig>
 								<OTCID>#x02010090</OTCID>
