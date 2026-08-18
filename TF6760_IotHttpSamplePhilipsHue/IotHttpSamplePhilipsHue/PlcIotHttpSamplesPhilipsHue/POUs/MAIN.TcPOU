@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
+  <POU Name="MAIN" Id="{e75e9aea-b793-462d-a560-528dd446e86c}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	// trigger command execution for Philips Hue samples
+	bPutPhilipsHue 					: BOOL;
+
+	fbHttpClientPhilipsHue			: FB_IotHttpClient := (sHostName := '192.168.0.100',
+									bKeepAlive := TRUE, tConnectionTimeout := T#10S);
+
+	fbHttpPutPhilipsHue				: FB_TestHTTP_Put_PhilipsHue;
+	
+	bBlinkingMode					: BOOL;
+	fbTimer							: TON:=(PT:=T#500MS);
+	nColor               			: UINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// init client parameters at startup
+IF NOT fbHttpClientPhilipsHue.bConfigured THEN 
+	fbHttpClientPhilipsHue.nHostPort := 443;
+	fbHttpClientPhilipsHue.stTLS.bNoServerCertCheck := TRUE;
+END_IF
+
+IF fbHttpClientPhilipsHue.bConfigured THEN
+	fbHttpPutPhilipsHue(bSend := bPutPhilipsHue, fbClient := fbHttpClientPhilipsHue, nColor := nColor);
+END_IF
+
+IF bBlinkingMode THEN
+	fbTimer(IN := NOT fbTimer.Q);
+	IF fbTimer.Q THEN
+		nColor := nColor +5000;
+		IF nColor = 65000 THEN
+			nColor :=0;
+		END_IF
+		IF bPutPhilipsHue THEN
+			bPutPhilipsHue := FALSE;
+		ELSE 
+			bPutPhilipsHue := TRUE;
+		END_IF
+	END_IF
+END_IF
+
+fbHttpClientPhilipsHue.Execute();]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

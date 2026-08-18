@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_TestHTTP_Post_awsIot" Id="{2bdf42f0-49cc-4313-a7e7-1f9af574c9cf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TestHTTP_Post_awsIot
+VAR_INPUT
+	bSend				: BOOL;
+END_VAR
+VAR_IN_OUT
+	fbClient			: FB_IotHttpClient;
+END_VAR
+VAR_OUTPUT
+	bBusy				: BOOL;
+	bError				: BOOL;
+END_VAR
+
+VAR	
+	fbRequest			: FB_IotHttpRequest;
+	fbJson				: FB_JsonDomParser;
+	fbPayload   		: FB_JsonSaxWriter;
+	nState				: UDINT;
+	RisingEdge			: R_TRIG;
+	
+	bGetContentResult	: BOOL;
+	sContent			: STRING(255);
+	
+	bGetJsonResult		: BOOL;
+	jsonDoc				: SJsonValue;
+	jsonVal				: SJsonValue;
+	sResultValue		: STRING;
+	
+	nReqCount			: UDINT;
+	nResCount			: UDINT;
+	nValidResCount		: UDINT;
+	nErrCount			: UDINT;	
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RisingEdge(CLK := bSend);
+CASE nState OF
+0:		
+	IF RisingEdge.Q THEN
+		fbPayload.StartObject();
+		fbPayload.AddKey('message');
+		fbPayload.AddReal(42.42);
+		fbPayload.EndObject();
+		// If object is longer than 256 byte, CopyDocument method must be used
+		sContent := fbPayload.GetDocument();
+		fbPayload.ResetDocument();
+		IF fbRequest.SendRequest(sUri := '/topics/mytopic?qos=1', fbClient := fbClient, eRequestType := ETcIotHttpRequestType.HTTP_POST, pContent := ADR(sContent), nContentSize := LEN2(ADR(sContent)), 0) THEN				
+			nState := 1;
+			nReqCount:= nReqCount +1;
+			bBusy := TRUE;
+			bError := FALSE;
+		END_IF					
+	END_IF
+1:
+	IF NOT fbRequest.bBusy THEN
+		bError := TRUE;
+		IF NOT fbRequest.bError THEN				 				
+			// As an alternative to GetJsonDomContent, GetContent could be used				 
+			// bGetContentResult := fbRequest.GetContent(pContent := ADR(sContent), nContentSize := SIZEOF(sContent), bSetNullTermination := TRUE);
+			IF fbRequest.nStatusCode >= 200 AND fbRequest.nStatusCode < 300 THEN
+				// Direct conversion into JSON object as the received message is in JSON format 
+				jsonDoc := fbRequest.GetJsonDomContent(fbJson);				
+				IF jsonDoc <> 0 THEN
+					bGetJsonResult := TRUE;
+					IF fbJson.HasMember(jsonDoc, 'message')  THEN
+						jsonVal := fbJson.FindMember(jsonDoc, 'message');
+						sResultValue := fbJson.GetString(jsonVal);
+						IF sResultValue = 'OK' THEN
+							nValidResCount:= nValidResCount +1;
+							bError := FALSE;
+						END_IF
+					END_IF		
+				END_IF
+				nResCount := nResCount +1;					
+			END_IF				
+		END_IF
+		nState := 0;
+		bBusy := FALSE;
+		IF bError THEN
+			nErrCount := nErrCount +1;
+		END_IF		
+	END_IF  	
+END_CASE
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
